@@ -19,11 +19,11 @@ Implemented and tested with MySQL Workbench 6.3.4
  * Type a file name and hit save;
  * Enjoy your SQL Server DDL file;
 
- ##Generated file example
+##Generated file example
  
- MySQL file generated with MySQL Workbench
- Tools -> Objects -> Copy SQL to Clipboard
- 
+###MySQL file generated with MySQL Workbench
+Tools -> Objects -> Copy SQL to Clipboard
+... 
 CREATE TABLE IF NOT EXISTS `sakila`.`film` (
   `film_id` SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '',
   `title` VARCHAR(255) NOT NULL COMMENT 'This is the title comment, and this was added just to show that comments are handled.',
@@ -55,10 +55,11 @@ CREATE TABLE IF NOT EXISTS `sakila`.`film` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COMMENT = 'This is the description of the table film.'
+... 
  
- 
-SQL Server DDL file generated with MySQL Workbench and the ExportSQLServer plugin
- 
+###SQL Server DDL file generated with MySQL Workbench and the ExportSQLServer plugin
+
+... 
 -- Creator       : MySQL Workbench 6.3.4 /ExportSQLServer plugin 2015.06.28
 -- Author        : Roland
 -- Caption       : New Model
@@ -106,3 +107,4 @@ CREATE INDEX [idx_fk_language_id] ON [sakila].[film] ([language_id]);
 CREATE INDEX [idx_fk_original_language_id] ON [sakila].[film] ([original_language_id]);
 
 -- Snip
+...
