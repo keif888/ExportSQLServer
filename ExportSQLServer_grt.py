@@ -29,7 +29,7 @@ from mforms import Utilities, FileChooser
 import re
 
 # create a module information descriptor. The variable name must be ModuleInfo
-ModuleInfo = DefineModule(name= "ExportSQLServer", author= "Keith Martin", version="2015.06.28")
+ModuleInfo = DefineModule(name= "ExportSQLServer", author= "Keith Martin", version="2015.07.23")
 
 
 # export a function from this module, declaring its return and parameter types and then
@@ -299,8 +299,8 @@ def exportTable(file, dbName, schema, tbl):
     
         #-- is primary key single-column?
         pKColumn = None
-        if (foundPrimaryKey & (primaryKey.columns == 1)): # then
-            pKColumn = primaryKey.columns[1].referencedColumn
+        if (foundPrimaryKey & (len(primaryKey.columns) == 1)): # then
+            pKColumn = primaryKey.columns[0].referencedColumn
         #end
     
         colComment = ""
@@ -347,6 +347,11 @@ def exportTable(file, dbName, schema, tbl):
                 file.write( ", %s \n" % (commentFormat(colComment)))
             #end
             file.write( " %s" % (quoteIdentifier(column.name)))
+
+            if (SQLServerType.find("BOOL") != -1): # then
+                #-- This is probably a BOOL or BOOLEAN, so we will replace it with BIT
+                SQLServerType = "BIT"
+            #end
             #-- type is optional in SQLServer
             if (SQLServerType != ""):
                 file.write( " %s" % (SQLServerType))
@@ -360,7 +365,7 @@ def exportTable(file, dbName, schema, tbl):
             #-- for AI/rowid behaviour
             if (column == pKColumn):# then
                 file.write(" CONSTRAINT %s PRIMARY KEY " % (quoteIdentifier("pk_%s" % (tbl.name))))
-                if (primaryKey.columns[1].descend == 1): #then
+                if (primaryKey.columns[0].descend == 1): #then
                     file.write(" DESC")
                 #end
                 #-- only PK columns can be AI in SQLServer
@@ -387,7 +392,7 @@ def exportTable(file, dbName, schema, tbl):
         #end
     
         #-- for multicolumn PKs
-        if (((primaryKey is None) == False) & (pKColumn == False)): #then
+        if ((primaryKey != None) & (pKColumn == None)): #then
             file.write(", %s\n CONSTRAINT %s PRIMARY KEY(%s)" % (commentFormat(colComment), quoteIdentifier("pk_%s" % (tbl.name)), printIndexColumns(primaryKey)))
             colComment = ""
         #end
@@ -451,7 +456,7 @@ def exportTable(file, dbName, schema, tbl):
             #local index, indexName
             #index = tbl.indices[k]
             if (index.indexType == "INDEX"): #then
-                indexName = "%s.%s" % (tbl.name, index.name)
+                indexName = "%s" % (index.name)
                 if (index.name == ""): #then
                     indexName = "%s.index%d" % (tbl.name, k)
                     #--uniqueId = uniqueId + 1
@@ -513,7 +518,7 @@ def exportTable(file, dbName, schema, tbl):
                     k += 1
                 #end
                 file.write( "INSERT INTO %s.%s (" % (quoteIdentifier(schema.name), quoteIdentifier(tbl.name)))
-                for k  in range (0, lastColumn):
+                for k  in range (0, lastColumn + 1):
                     if (k > 0): #then
                         file.write( ",")
                     #end
@@ -527,7 +532,7 @@ def exportTable(file, dbName, schema, tbl):
                 columnsValues = columnsValues[9:]
 
                 file.write(") VALUES (")
-                file.write( columnsValues.replace("'", "''"))
+                file.write( columnsValues ) # .replace("'", "''")) # this was causing doubled single quotes
                 file.write( "\n")
             #end
     #end
@@ -578,8 +583,8 @@ def exportSchema(file, schema, isMainSchema):
             #file.write('ATTACH "%s" AS %s; \n' % (safeFileName("%s.sdb" % (schema.name)), quoteIdentifier(schema.name)))
             file.write ("CREATE SCHEMA %s" % (quoteIdentifier(schema.name)))
         #end
-		
-		if (isMainSchema & (schema.name.lower() != "dbo")):
+
+        if (isMainSchema & (schema.name.lower() != "dbo")):
             file.write ("CREATE SCHEMA %s;" % (quoteIdentifier(schema.name)))
 
         #-- find a valid table order for inserts from FK constraints
