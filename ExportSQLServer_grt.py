@@ -29,7 +29,7 @@ from mforms import Utilities, FileChooser
 import re
 
 # create a module information descriptor. The variable name must be ModuleInfo
-ModuleInfo = DefineModule(name= "ExportSQLServer", author= "Keith Martin", version="2015.07.23")
+ModuleInfo = DefineModule(name= "ExportSQLServer", author= "Keith Martin", version="2015.07.30")
 
 
 # export a function from this module, declaring its return and parameter types and then
