@@ -544,6 +544,8 @@ def orderTables(file, dbName, schema, unOrdered, respectDeferredness):
     while True:
         haveOrdered = False
         showMessage(str.format("There are {0} records left in unOrdered in function {1}", len(unOrdered), "orderTables"))
+        if (len(unOrdered) == 0):  # if there aren't any tables in the unOrdered list then there is nothing to do.
+            break
         for tbl in schema.tables: #) do
             showMessage(str.format("Processing Table {0} in function {1}", tbl.name, "orderTables"))
             if (tbl in unOrdered):
